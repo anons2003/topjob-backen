@@ -13,5 +13,7 @@ public interface JobPostRepository extends JpaRepository<Job, Long> {
 
     List<Job> findByEnterprise_User_Uid(int i);
 
-    List<Job> findByIsActiveTrue();
+    List<Job> findByIsActiveTrueOrderByCreatedDateDesc();
+
+
 }

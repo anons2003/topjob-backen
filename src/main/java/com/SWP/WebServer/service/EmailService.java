@@ -1,6 +1,7 @@
 package com.SWP.WebServer.service;
 
 import com.SWP.WebServer.entity.Enterprise;
+import com.SWP.WebServer.entity.Job;
 import com.SWP.WebServer.entity.JobSeeker;
 import com.SWP.WebServer.repository.EnterpriseRepository;
 import com.SWP.WebServer.repository.JobSeekerRepository;
@@ -44,7 +45,7 @@ public class EmailService {
                                       String email,
                                       String subject,
                                       String body) {
-        JobSeeker  jobSeeker = jobSeekerRepository.findByJid(jid);
+        JobSeeker jobSeeker = jobSeekerRepository.findByJid(jid);
         try {
             MimeMessage mimeMessage = emailSender.createMimeMessage();
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
@@ -72,7 +73,7 @@ public class EmailService {
     }
 
     public String sendEmailToEnterprise(int eid, String name, String email, String subject, String body) {
-        Enterprise  enterprise = enterpriseRepository.findByEid(eid);
+        Enterprise enterprise = enterpriseRepository.findByEid(eid);
         try {
             MimeMessage mimeMessage = emailSender.createMimeMessage();
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
@@ -102,7 +103,7 @@ public class EmailService {
 
 
     public void sendRejectionEmail(String enId, int uid, String[] rejectReason) {
-        JobSeeker  jobSeeker = jobSeekerRepository.findByUser_Uid(uid);
+        JobSeeker jobSeeker = jobSeekerRepository.findByUser_Uid(uid);
         Enterprise enterprise = enterpriseRepository.findByUser_Uid(Integer.parseInt(enId));
 
 
@@ -162,8 +163,77 @@ public class EmailService {
             mimeMessageHelper.setSubject(subject);
             mimeMessageHelper.setText(text);
             emailSender.send(mimeMessage);
-        }catch (Exception e){
-            throw  new RuntimeException(e);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    public void sendEmailForJobToJobSeeker(JobSeeker jobSeeker, Job job) {
+        try {
+            MimeMessage mimeMessage = emailSender.createMimeMessage();
+            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
+            mimeMessageHelper.setFrom("tjobnoreplymail@gmail.com");
+            mimeMessageHelper.setTo(jobSeeker.getUser().getEmail());
+            mimeMessageHelper.setSubject("New Job Posting: " + job.getTitle());
+            mimeMessageHelper.setText("Dear " + jobSeeker.getFirst_name() + " " + jobSeeker.getLast_name() + ",\n\n" +
+                    "A new job has been posted in your occupation category:\n\n" +
+                    "Job Title: " + job.getTitle() + "\n" +
+                    "Description: " + job.getDescription() + "\n" +
+                    "Location: " + job.getAddress() + "\n" +
+                    "Salary: " + job.getMinSalary() + " - " + job.getMaxSalary() + "\n" +
+                    "\n" +
+                    "Please log in to your account to view more details and apply.\n\n" +
+                    "Best regards,\n" +
+                    "Your Company Name");
+
+            emailSender.send(mimeMessage);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    //sendApprovalEmail
+    public void sendApprovalEmail(Job job, int eid) {
+
+        Enterprise enterprise = enterpriseRepository.findByEid(eid);
+        String toEmail = enterprise.getUser().getEmail();
+        String enName = enterprise.getEnterprise_name();
+        String name = "Top Job";
+        String jobTitle = job.getTitle();
+        String subject = "Job Approval Notification";
+        String body = String.format(
+                "Dear %s,%n%nCongratulations! Your job posting titled '%s' has been approved.%n%n" +
+                        "Best regards" +
+                        " %n%s",
+                enName, jobTitle, enName
+        );
+
+        sendEmailToEnterprise(eid, name, toEmail, subject, body);
+    }
+
+    public void sendRejectionEmail(Job job, int eid, String rejectReason, String otherReason) {
+        Enterprise enterprise = enterpriseRepository.findByEid(eid);
+
+        if (enterprise != null) {
+            String toEmail = enterprise.getUser().getEmail();
+            String enName = enterprise.getEnterprise_name(); // Make sure this method name matches your entity's getter method
+            String jobTitle = job.getTitle();
+            String name = "Top Job";
+            String subject = "Job Application Rejected";
+            String body = String.format(
+                    "Dear %s,%n%n" +
+                            "We regret to inform you that your job posting titled '%s' has been rejected.%n" +
+                            "Reason: %s%n%n" +
+                            "Best regards,%n" +
+                            "%s",
+                    enName, jobTitle, rejectReason, name
+            );
+            sendEmailToEnterprise(eid, name, toEmail, subject, body);
+        } else {
+            // Handle case where enterprise is not found
+            System.err.println("Enterprise not found for eid: " + eid);
         }
     }
 

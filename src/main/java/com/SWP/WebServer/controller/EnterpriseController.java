@@ -124,7 +124,7 @@ public class EnterpriseController {
                                       @RequestBody RejectionRequest rejectReason) {
         String enId = getUserIdFromToken(token);
         String message = cvService.rejectCV(enId, uid);
-        emailService.sendRejectionEmail(enId,uid,rejectReason.getReasons());
+        emailService.sendRejectionEmail(enId, uid, rejectReason.getReasons());
 
         return ResponseEntity.ok(message);
     }
@@ -140,7 +140,7 @@ public class EnterpriseController {
                                       @PathVariable("uid") int uid) {
         String enId = getUserIdFromToken(token);
         String message = cvService.acceptCV(enId, uid);
-        emailService.sendAcceptanceEmail(enId,uid);
+        emailService.sendAcceptanceEmail(enId, uid);
 
 
         return ResponseEntity.ok(message);
@@ -158,11 +158,8 @@ public class EnterpriseController {
     @PatchMapping("/update-info")
     public ResponseEntity<?> updateUserInfo(
             @RequestBody UpdateInfoEnDTO updateInfoEnDTO,
-            @RequestParam(value = "resume", required = false) MultipartFile resume,
             @RequestHeader("Authorization") String token) throws IOException {
         String userId = getUserIdFromToken(token);
-
-
         Enterprise updatedUser = enterpriseService.updateInfoEn(updateInfoEnDTO, userId);
         return ResponseEntity.ok(updatedUser);
     }

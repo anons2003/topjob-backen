@@ -7,17 +7,19 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class JobDTO {
+
     private Long id;
     private String title;
     private String description;
     private String jobTypeName;
-    private Integer jobTypeId; // Changed from Long to Integer
+    private Integer jobTypeId;
     private String jobCategoryName;
-    private Integer jobCategoryId; // Changed from Long to Integer
+    private Integer jobCategoryId;
     private String salaryType;
     private BigDecimal minSalary;
     private BigDecimal maxSalary;
@@ -28,11 +30,13 @@ public class JobDTO {
     private String address;
     private String country;
     private String state;
+    private String city;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String enterpriseName;
-    private Integer enterpriseId; // Changed from Long to Integer
+    private Integer enterpriseId;
     private boolean isActive;
     private String avatarUrl;
+    // Getters and setters
     private List<BookmarkDTO> bookmarks;
 }
